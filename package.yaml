@@ -1,0 +1,35 @@
+name: bug
+version: 0
+category: acme
+
+dependencies:
+  - base
+  - clash-prelude
+  - clash-lib
+  - clash-ghc
+
+default-extensions:
+  - DataKinds
+  - TypeFamilies
+  - FlexibleContexts
+  - TemplateHaskell
+  - DeriveGeneric
+  - DeriveAnyClass
+  - NoStarIsType
+  - TypeOperators
+  - ScopedTypeVariables
+  - TypeApplications
+
+ghc-options:
+  -fplugin GHC.TypeLits.KnownNat.Solver
+  -fplugin GHC.TypeLits.Normalise
+  -fplugin GHC.TypeLits.Extra.Solver
+
+  
+source-dirs:
+  - src
+  
+library:
+  exposed-modules:
+    - Calculator
+    
