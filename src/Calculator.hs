@@ -17,7 +17,6 @@ import Control.Monad.State
 
 import Calculator.ALU
 import Calculator.State
-import qualified Data.List as L
 
 {-# ANN topEntity
   (Synthesize
@@ -120,12 +119,3 @@ keymap =
     (0x7 :> 0x8 :> 0x9 :> 0xc :> Nil) :>
     (0x0 :> 0xf :> 0xe :> 0xd :> Nil) :>
     Nil
-
-testInput :: Signal dom (Maybe Hex)
-testInput = fromList . (<> L.repeat Nothing) . stretch $
-    [ 9, 3, 0xa
-    , 1, 4, 6, 0xb, 5, 0xd
-    , 5, 3, 0xe
-    ]
-  where
-    stretch = L.concatMap $ \x -> [Nothing, Just x, Nothing]
