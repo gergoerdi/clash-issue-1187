@@ -6,7 +6,6 @@ module Calculator where
 
 import Clash.Prelude
 import RetroClash.Utils
-import RetroClash.SevenSegment
 import RetroClash.Keypad
 import RetroClash.Clock
 import RetroClash.SerialRx
@@ -30,7 +29,6 @@ import qualified Data.List as L
           ]
     , t_output = PortProduct ""
           [ PortName "TX"
-          , sevenSegmentPort
           , PortName "COLS"
           ]
     }) #-}
@@ -39,19 +37,17 @@ topEntity
     -> Signal System Bit
     -> Signal System (Vec 4 (Active Low))
     -> ( Signal System Bit
-       , SevenSegment System 4 Low Low Low
       , Signal System (Vec 4 (Active Low))
       )
 topEntity = withResetEnableGen board
   where
     board rx rows =
         ( tx
-        , display (reverse <$> digits)
         , reverse <$> cols
         )
       where
-        digits = logic cmd
-        cmd = mplus <$> cmdKey <*> cmdSerial
+        digits = logic @4 cmd
+        cmd = cmdSerial
 
         (tx, ack) = serialTx (SNat @9600) (fmap bitCoerce <$> serialDisplay ack digits)
         cmdSerial = (byteToCmd . bitCoerce =<<) <$> (serialRx (SNat @9600) rx)
@@ -59,8 +55,6 @@ topEntity = withResetEnableGen board
         input = inputKeypad keymap
         (cols, key) = input rows
         cmdKey = (keyToCmd =<<) <$> key
-
-        display = driveSS (\x -> (encodeHexSS . bitCoerce $ x, False))
 
 pattern ByteChar c <- (chr . fromIntegral -> c) where
   ByteChar = fromIntegral . ord
