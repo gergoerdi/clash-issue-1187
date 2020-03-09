@@ -46,26 +46,17 @@ topEntity = withResetEnableGen board
         )
       where
         digits = logic @4 cmd
-        cmd = cmdSerial
 
         (tx, ack) = serialTx (SNat @9600) (fmap bitCoerce <$> serialDisplay ack digits)
-        cmdSerial = (byteToCmd . bitCoerce =<<) <$> (serialRx (SNat @9600) rx)
+        cmd = (byteToCmd . bitCoerce =<<) <$> (serialRx (SNat @9600) rx)
 
         input = inputKeypad keymap
         (cols, key) = input rows
-        cmdKey = (keyToCmd =<<) <$> key
 
 pattern ByteChar c <- (chr . fromIntegral -> c) where
   ByteChar = fromIntegral . ord
 
 byteToCmd :: Unsigned 8 -> Maybe Cmd
-byteToCmd b@(ByteChar c) | '0' <= c && c <= '9' = Just . Digit $ fromIntegral $ b - ByteChar '0'
-byteToCmd (ByteChar '+') = Just $ Op Add
-byteToCmd (ByteChar '-') = Just $ Op Subtract
-byteToCmd (ByteChar '=') = Just Equals
-byteToCmd (ByteChar '\r') = Just Equals
-byteToCmd (ByteChar '\DEL') = Just Clear
-byteToCmd (ByteChar '\b') = Just Backspace
 byteToCmd _ = Nothing
 
 serialDisplay
@@ -102,15 +93,6 @@ logic
 logic = moore (flip $ maybe id update) displayedDigits initSt
 
 type Hex = Unsigned 4
-
-keyToCmd :: Hex -> Maybe Cmd
-keyToCmd n | n <= 9 = Just $ Digit $ bitCoerce n
-keyToCmd 0xa = Just $ Op Add
-keyToCmd 0xb = Just Backspace
-keyToCmd 0xc = Just Clear
-keyToCmd 0xd = Just $ Op Subtract
-keyToCmd 0xe = Just Equals
-keyToCmd _ = Nothing
 
 keymap :: Matrix 4 4 Hex
 keymap =
