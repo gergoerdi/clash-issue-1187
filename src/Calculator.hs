@@ -16,11 +16,6 @@ import Data.Char
 import Control.Monad.State
 
 type Digit = Index 10
-type BCD n = Vec n Digit
-
-data Cmd
-    = Digit Digit
-    deriving (Show, Generic, NFDataX)
 
 {-# ANN topEntity
   (Synthesize
@@ -52,16 +47,13 @@ topEntity = withResetEnableGen board
         digits = logic @4 cmd
 
         (tx, ack) = serialTx (SNat @9600) (fmap bitCoerce <$> serialDisplay ack digits)
-        cmd = (byteToCmd . bitCoerce =<<) <$> (serialRx (SNat @9600) rx)
+        cmd = (const Nothing =<<) <$> (serialRx @8 (SNat @9600) rx)
 
         input = inputKeypad keymap
         (cols, key) = input rows
 
 pattern ByteChar c <- (chr . fromIntegral -> c) where
   ByteChar = fromIntegral . ord
-
-byteToCmd :: Unsigned 8 -> Maybe Cmd
-byteToCmd _ = Nothing
 
 serialDisplay
     :: forall n dom. (KnownNat n, HiddenClockResetEnable dom)
@@ -84,7 +76,7 @@ serialDisplay ack digits = mealyStateB step (Nothing @(Index n), repeat 0) (ack,
 
 logic
     :: forall n dom. (KnownNat n, HiddenClockResetEnable dom)
-    => Signal dom (Maybe Cmd)
+    => Signal dom (Maybe ())
     -> Signal dom (Vec n (Maybe Digit))
 logic = const $ pure $ repeat Nothing
 
