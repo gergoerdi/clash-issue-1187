@@ -1,11 +1,7 @@
-{-# LANGUAGE PartialTypeSignatures, NumericUnderscores, ApplicativeDo, RecordWildCards #-}
-{-# LANGUAGE PatternSynonyms, ViewPatterns #-}
-
-{-# LANGUAGE GADTs #-}
 module Calculator where
 
 import Clash.Prelude
-import RetroClash.Utils (withResetEnableGen, mealyStateB)
+import RetroClash.Utils (withResetEnableGen)
 import RetroClash.Keypad (Matrix, inputKeypad)
 import RetroClash.Clock
 import RetroClash.SerialRx
@@ -46,45 +42,20 @@ topEntity = withResetEnableGen board
       where
         digits = logic @4 cmd
 
-        (tx, ack) = serialTx (SNat @9600) (fmap bitCoerce <$> serialDisplay ack digits)
+        (tx, ack) = serialTx @8 (SNat @9600) (fmap bitCoerce <$> serialDisplay ack digits)
         cmd = (const Nothing =<<) <$> (serialRx @8 (SNat @9600) rx)
 
-        (cols, _) = inputKeypad keymap rows
-
-pattern ByteChar c <- (chr . fromIntegral -> c) where
-  ByteChar = fromIntegral . ord
+        (cols, _) = inputKeypad (repeat $ repeat 0)  rows
 
 serialDisplay
     :: forall n dom. (KnownNat n, HiddenClockResetEnable dom)
     => Signal dom Bool
     -> Signal dom (Vec n (Maybe Digit))
     -> Signal dom (Maybe (Unsigned 8))
-serialDisplay ack digits = mealyStateB step (Nothing @(Index n), repeat 0) (ack, digits)
-  where
-    step :: (Bool, Vec n (Maybe Digit)) -> State (Maybe (Index n), Vec n (Unsigned 8)) (Maybe (Unsigned 8))
-    step (next, digits) = do
-        (i, bs) <- get
-        case i of
-            Nothing -> do
-                let bs' = map fromDigit digits
-                when (bs /= bs') $ put (Just 0, bs')
-                return Nothing
-
-    fromDigit :: Maybe Digit -> Unsigned 8
-    fromDigit = maybe (ByteChar ' ') $ \n -> ByteChar '0' + fromIntegral n
+serialDisplay ack digits = pure Nothing
 
 logic
     :: forall n dom. (KnownNat n, HiddenClockResetEnable dom)
     => Signal dom (Maybe ())
     -> Signal dom (Vec n (Maybe Digit))
 logic = const $ pure $ repeat Nothing
-
-type Hex = Unsigned 4
-
-keymap :: Matrix 4 4 Hex
-keymap =
-    (0x1 :> 0x2 :> 0x3 :> 0xa :> Nil) :>
-    (0x4 :> 0x5 :> 0x6 :> 0xb :> Nil) :>
-    (0x7 :> 0x8 :> 0x9 :> 0xc :> Nil) :>
-    (0x0 :> 0xf :> 0xe :> 0xd :> Nil) :>
-    Nil
