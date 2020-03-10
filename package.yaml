@@ -6,9 +6,15 @@ dependencies:
   - base
   - clash-prelude
   - clash-lib
-  - clash-ghc
+  - clash-ghc   
+  - ghc-typelits-natnormalise
+  - ghc-typelits-extra
+  - ghc-typelits-knownnat
+  
+  - mtl
 
 default-extensions:
+  - NoImplicitPrelude
   - DataKinds
   - TypeFamilies
   - FlexibleContexts
