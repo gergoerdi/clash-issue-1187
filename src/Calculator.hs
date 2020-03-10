@@ -1,7 +1,6 @@
 module Calculator where
 
 import Clash.Prelude
-import RetroClash.Utils (withResetEnableGen)
 import RetroClash.Keypad (Matrix, inputKeypad)
 import RetroClash.Clock
 import RetroClash.SerialRx
@@ -33,7 +32,7 @@ topEntity
     -> ( Signal System Bit
       , Signal System (Vec 4 Bool)
       )
-topEntity = withResetEnableGen board
+topEntity clk = withClockResetEnable clk resetGen enableGen board
   where
     board rx rows =
         ( tx
