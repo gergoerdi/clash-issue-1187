@@ -5,7 +5,7 @@
 module Calculator where
 
 import Clash.Prelude
-import RetroClash.Utils
+import RetroClash.Utils -- ()
 import RetroClash.Keypad
 import RetroClash.Clock
 import RetroClash.SerialRx
@@ -33,9 +33,9 @@ type Digit = Index 10
 topEntity
     :: Clock System
     -> Signal System Bit
-    -> Signal System (Vec 4 (Active Low))
+    -> Signal System (Vec 4 Bool)
     -> ( Signal System Bit
-      , Signal System (Vec 4 (Active Low))
+      , Signal System (Vec 4 Bool)
       )
 topEntity = withResetEnableGen board
   where
