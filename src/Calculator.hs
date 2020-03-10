@@ -15,8 +15,26 @@ import Data.Maybe
 import Data.Char
 import Control.Monad.State
 
-import Calculator.ALU
-import Calculator.State
+type Digit = Index 10
+type BCD n = Vec n Digit
+
+data St n = MkSt
+    { inputBuf :: Maybe (BCD n)
+    }
+    deriving (Show, Generic, NFDataX)
+
+initSt :: (KnownNat n) => St n
+initSt = MkSt{ inputBuf = Nothing }
+
+data Cmd
+    = Digit Digit
+    deriving (Show, Generic, NFDataX)
+
+update :: (KnownNat n) => Cmd -> St n -> St n
+update _ = id
+
+displayedDigits :: (KnownNat n) => St n -> Vec n (Maybe Digit)
+displayedDigits MkSt{..} = maybe (repeat Nothing) (map Just) inputBuf
 
 {-# ANN topEntity
   (Synthesize
