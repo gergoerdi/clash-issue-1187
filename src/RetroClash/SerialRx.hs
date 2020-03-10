@@ -1,11 +1,10 @@
 {-# LANGUAGE RecordWildCards #-}
 module RetroClash.SerialRx
     ( serialRx
-    , serialRxDyn
     ) where
 
 import Clash.Prelude
-import RetroClash.Utils
+import RetroClash.Utils (mealyStateB, succIdx)
 import RetroClash.Clock
 import RetroClash.Slow
 

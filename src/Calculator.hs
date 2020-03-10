@@ -1,7 +1,5 @@
-module Calculator where
-
 import Clash.Prelude
-import RetroClash.Keypad (Matrix, inputKeypad)
+import RetroClash.Keypad (inputKeypad)
 import RetroClash.Clock
 import RetroClash.SerialRx
 import RetroClash.SerialTx
