@@ -1,5 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, NumericUnderscores, PartialTypeSignatures #-}
-{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+{-# LANGUAGE NumericUnderscores #-}
 module RetroClash.Clock
     ( HzToPeriod
 
@@ -9,8 +8,6 @@ module RetroClash.Clock
     , Nanoseconds
 
     , ClockDivider
-    , risePeriod
-    , riseRate
     ) where
 
 import Clash.Prelude
@@ -24,15 +21,3 @@ type Microseconds (us :: Nat) = Nanoseconds (1_000 * us)
 type Nanoseconds (ns :: Nat) = 1_000 * ns
 
 type ClockDivider dom ps = ps `Div` DomainPeriod dom
-
-risePeriod
-    :: forall ps dom. (HiddenClockResetEnable dom, _)
-    => SNat ps
-    -> Signal dom Bool
-risePeriod _ = riseEvery (SNat @(ClockDivider dom ps))
-
-riseRate
-    :: forall rate dom. (HiddenClockResetEnable dom, _)
-    => SNat rate
-    -> Signal dom Bool
-riseRate _ = risePeriod (SNat @(HzToPeriod rate))
