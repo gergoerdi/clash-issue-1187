@@ -1,14 +1,11 @@
 module RetroClash.Keypad
-    ( Matrix(..), KeyStates(..), KeyEvent(..), KeyEvents(..)
-    , scanKeypad, keypadEvents
-    , pressedKeys
-    , firstJust2D
+    ( Matrix(..)
     , inputKeypad
     ) where
 
 import Clash.Prelude
-import RetroClash.Utils
-import RetroClash.Clock
+import RetroClash.Utils (debounce, roundRobin, moreIdx, (.==))
+import RetroClash.Clock (Milliseconds, ClockDivider)
 import Control.Monad (mplus)
 
 type Matrix rows cols a = Vec rows (Vec cols a)

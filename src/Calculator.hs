@@ -5,8 +5,8 @@
 module Calculator where
 
 import Clash.Prelude
-import RetroClash.Utils -- ()
-import RetroClash.Keypad
+import RetroClash.Utils (withResetEnableGen, mealyStateB)
+import RetroClash.Keypad (Matrix, inputKeypad)
 import RetroClash.Clock
 import RetroClash.SerialRx
 import RetroClash.SerialTx
@@ -49,8 +49,7 @@ topEntity = withResetEnableGen board
         (tx, ack) = serialTx (SNat @9600) (fmap bitCoerce <$> serialDisplay ack digits)
         cmd = (const Nothing =<<) <$> (serialRx @8 (SNat @9600) rx)
 
-        input = inputKeypad keymap
-        (cols, key) = input rows
+        (cols, _) = inputKeypad keymap rows
 
 pattern ByteChar c <- (chr . fromIntegral -> c) where
   ByteChar = fromIntegral . ord
