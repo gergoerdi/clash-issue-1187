@@ -18,23 +18,9 @@ import Control.Monad.State
 type Digit = Index 10
 type BCD n = Vec n Digit
 
-data St n = MkSt
-    { inputBuf :: Maybe (BCD n)
-    }
-    deriving (Show, Generic, NFDataX)
-
-initSt :: (KnownNat n) => St n
-initSt = MkSt{ inputBuf = Nothing }
-
 data Cmd
     = Digit Digit
     deriving (Show, Generic, NFDataX)
-
-update :: (KnownNat n) => Cmd -> St n -> St n
-update _ = id
-
-displayedDigits :: (KnownNat n) => St n -> Vec n (Maybe Digit)
-displayedDigits MkSt{..} = maybe (repeat Nothing) (map Just) inputBuf
 
 {-# ANN topEntity
   (Synthesize
@@ -100,7 +86,7 @@ logic
     :: forall n dom. (KnownNat n, HiddenClockResetEnable dom)
     => Signal dom (Maybe Cmd)
     -> Signal dom (Vec n (Maybe Digit))
-logic = moore (flip $ maybe id update) displayedDigits initSt
+logic = const $ pure $ repeat Nothing
 
 type Hex = Unsigned 4
 
